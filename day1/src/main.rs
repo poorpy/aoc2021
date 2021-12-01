@@ -26,11 +26,7 @@ fn sliding_window(measurements: Vec<u64>, window_size: usize) -> Vec<u64> {
     let mut acc: Vec<u64> = Vec::new();
     for (index, _) in measurements.iter().enumerate() {
         if index + window_size <= measurements.len() {
-            acc.push(
-                measurements[index..index + window_size]
-                    .iter()
-                    .fold(0, |a, i| a + i),
-            );
+            acc.push(measurements[index..index + window_size].iter().sum());
         }
     }
     acc
