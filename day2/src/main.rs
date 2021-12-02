@@ -13,16 +13,16 @@ fn main() {
         Position {
             horizontal: 0,
             depth: 0,
-            aim: 0
+            aim: 0,
         },
-        |position, command| calculate_position(command.clone(), position),
+        |position, command| calculate_position(command, position),
     );
 
     println!("Final Position: {:?}", final_position);
     println!("Mul: {}", final_position.horizontal * final_position.depth)
 }
 
-fn calculate_position(command: CommandPair, mut start: Position) -> Position {
+fn calculate_position(command: &CommandPair, mut start: Position) -> Position {
     match command.direction.as_str() {
         "forward" => {
             start.horizontal += command.value;
@@ -45,7 +45,7 @@ fn calculate_position(command: CommandPair, mut start: Position) -> Position {
 struct Position {
     horizontal: i32,
     depth: i32,
-    aim: i32
+    aim: i32,
 }
 
 #[derive(Clone)]
@@ -56,16 +56,16 @@ struct CommandPair {
 
 fn read_commands(filename: &str) -> io::Result<Vec<CommandPair>> {
     let file = File::open(filename)?;
-    let mut acc: Vec<CommandPair> = Vec::new();
-    for line in io::BufReader::new(file).lines() {
-        if let Ok(dir_val) = line {
-            let mut split = dir_val.split(" ");
+    Ok(io::BufReader::new(file)
+        .lines()
+        .filter_map(|x| x.ok())
+        .map(|line| {
+            let mut split = line.split(" ");
             let (direction, value): (&str, &str) = (split.next().unwrap(), split.next().unwrap());
-            acc.push(CommandPair {
+            CommandPair {
                 direction: direction.to_owned(),
                 value: value.parse::<i32>().unwrap(),
-            })
-        }
-    }
-    Ok(acc)
+            }
+        })
+        .collect())
 }
