@@ -17,11 +17,26 @@ fn main() {
         .map(|(index, _)| index)
         .unwrap();
 
+    let worst_index = solutions
+        .iter()
+        .enumerate()
+        .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(Ordering::Equal))
+        .map(|(index, _)| index)
+        .unwrap();
+
+
     println!(
         "board: {} number_called: {} mul: {}",
         boards[optimal_index].score(),
         numbers[solutions[optimal_index]],
         boards[optimal_index].score() * numbers[solutions[optimal_index]],
+    );
+
+    println!(
+        "board: {} number_called: {} mul: {}",
+        boards[worst_index].score(),
+        numbers[solutions[worst_index]],
+        boards[worst_index].score() * numbers[solutions[worst_index]],
     );
 }
 
