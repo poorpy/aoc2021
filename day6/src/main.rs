@@ -3,32 +3,40 @@ use std::{env, fs};
 fn main() {
     let args: Vec<String> = env::args().collect();
     let filename: &str = &args[1];
+    let days: u64 = args[2].parse().unwrap();
 
-    let mut state = read_initial_state(filename);
-    state.sort();
+    let indexes = state_into_indexes(read_initial_state(filename));
 
-    let final_state: Vec<u32> = (0..80).fold(state, |state, _index| step(state));
-    
-    println!("{:?}", final_state);
+    let fish_count: u64 = (0..days)
+        .fold(indexes, |state, _index| step(state))
+        .iter()
+        .sum();
+
+    println!("{}", fish_count);
 }
 
-fn step(state: Vec<u32>) -> Vec<u32> {
-    let new_fish = state.iter().filter(|&&x| x == 0).count();
-    let mut pending: Vec<u32> = state
-        .into_iter()
-        .filter(|&x| x > 0)
-        .map(|x| x - 1)
-        .collect();
-    pending.extend(vec![vec![6; new_fish], vec![8; new_fish]].concat());
-    pending
+fn step(mut state: Vec<u64>) -> Vec<u64> {
+    state.rotate_left(1);
+    state[6] += state[8];
+    state
 }
 
-fn read_initial_state(filename: &str) -> Vec<u32> {
+fn state_into_indexes(state: Vec<u64>) -> Vec<u64> {
+    let mut vec = vec![0; 9];
+
+    for i in 0..9 {
+        vec[i] = state.iter().filter(|&&x| x == i as u64).count() as u64;
+    }
+
+    vec
+}
+
+fn read_initial_state(filename: &str) -> Vec<u64> {
     fs::read_to_string(filename)
         .unwrap()
         .split_whitespace()
         .collect::<String>()
         .split(",")
-        .map(|f| f.parse::<u32>().unwrap())
+        .map(|f| f.parse::<u64>().unwrap())
         .collect()
 }
